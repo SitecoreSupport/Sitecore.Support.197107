@@ -1,6 +1,11 @@
 ﻿namespace Sitecore.Support.Marketing.xMgmt.Definitions
 {
     using Sitecore.Abstractions;
+    using Sitecore.Data.Events;
+    using Sitecore.Data.Items;
+    using Sitecore.Events;
+    using Sitecore.Marketing.Definitions.MarketingAssets.Data.ItemDb;
+    using Sitecore.Marketing.xMgmt.Extensions;
     using System;
     using System.Reflection;
 
@@ -15,11 +20,30 @@
 
         public void SupportOnItemSaving([NotNull] object sender, [CanBeNull] EventArgs args)
         {
+            #region Added code. The bug fix
+            var item = Event.ExtractParameter(args, 0) as Item;
+            if (item == null || _templateManager.GetTemplate(item)
+                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID())
+                                && !item.IsMarketingAsset())
+            {
+                return;
+            }
+            #endregion
+
             OnItemSaving(sender, args);
         }
 
         public void SupportOnItemCreating(object sender, EventArgs args)
         {
+            #region Added code. The bug fix
+            var creatingArgs = Event.ExtractParameter(args, 0) as ItemCreatingEventArgs;
+            if (creatingArgs == null || _templateManager.GetTemplate(creatingArgs.TemplateId, creatingArgs.Parent.Database)
+                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID()))
+            {
+                return;
+            }
+            #endregion
+
             OnItemCreating(sender, args);
         }
 
