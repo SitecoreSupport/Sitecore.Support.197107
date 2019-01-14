@@ -1,4 +1,6 @@
-﻿namespace Sitecore.Support.Marketing.xMgmt.Definitions
+﻿using Sitecore.Data.Templates;
+
+namespace Sitecore.Support.Marketing.xMgmt.Definitions
 {
     using Sitecore.Abstractions;
     using Sitecore.Data.Events;
@@ -22,12 +24,16 @@
         {
             #region Added code. The bug fix
             var item = Event.ExtractParameter(args, 0) as Item;
-            if (item == null || _templateManager.GetTemplate(item)
-                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID())
-                                && !item.IsMarketingAsset())
+            Template template = _templateManager.GetTemplate(item);
+            if (template != null)
             {
-                return;
-            }
+                if (item == null || template
+                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID())
+                    && !item.IsMarketingAsset())
+                {
+                    return;
+                }
+            }         
             #endregion
 
             OnItemSaving(sender, args);
@@ -37,11 +43,16 @@
         {
             #region Added code. The bug fix
             var creatingArgs = Event.ExtractParameter(args, 0) as ItemCreatingEventArgs;
-            if (creatingArgs == null || _templateManager.GetTemplate(creatingArgs.TemplateId, creatingArgs.Parent.Database)
-                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID()))
+            Template template = _templateManager.GetTemplate(creatingArgs.TemplateId, creatingArgs.Parent.Database);
+            if (template != null)
             {
-                return;
+                if (creatingArgs == null || template
+                        .InheritsFrom(Sitecore.Marketing.Definitions.MarketingAssets.WellKnownIdentifiers.TemplateIDs.MediaClassificationTemplateId.ToID()))
+                {
+                    return;
+                }
             }
+             
             #endregion
 
             OnItemCreating(sender, args);
